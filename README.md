@@ -15,3 +15,6 @@ A Flutter package for countdown animation.
 
 For help getting started with Flutter, view our online documentation, which offers tutorials, samples, guidance on mobile development, and a full API reference.
 
+##Example
+
+[See Here](https://github.com/huma11farheen/countdown_animation/blob/main/example/lib/main.dart)

@@ -3,6 +3,7 @@ description: A new Flutter package project for countdown animation.
 version: 0.0.1
 homepage: https://github.com/huma11farheen/countdown_animation
 
+
 environment:
   sdk: ">=2.7.0 <3.0.0"
   flutter: ">=1.17.0"
