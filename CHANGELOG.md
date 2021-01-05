@@ -4,4 +4,6 @@
 
 ## [0.0.2] - Add padding feature.
 
-## [0.0.3] - Remove disposbale provider dependency.
+## [0.0.3] - Remove disposable provider dependency.
+
+## [0.0.4] - Improve example code.
