@@ -3,7 +3,6 @@ library countdown_animation;
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:disposable_provider/disposable_provider.dart';
 import 'package:flutter/material.dart';
 
 class CountDownAnimation extends StatefulWidget {
@@ -185,7 +184,7 @@ class _CountDownPainter extends CustomPainter {
 
 typedef CountListener = void Function(int count);
 
-class CountController extends Disposable {
+class CountController {
   CountListener _listener;
 
   void trigger(int number) {

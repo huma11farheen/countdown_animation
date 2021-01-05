@@ -1,5 +1,4 @@
 import 'package:countdown_animation/countdown_animation.dart';
-import 'package:disposable_provider/disposable_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -35,7 +34,7 @@ class MainPage extends StatelessWidget {
   static Widget wrapped() {
     return MultiProvider(
       providers: [
-        DisposableProvider(
+        Provider(
           create: (context) => CountController(),
         ),
         ChangeNotifierProvider(
@@ -68,7 +67,7 @@ class MainPage extends StatelessWidget {
               backgroundColor: Colors.grey.withOpacity(0.2),
               progressColor: Colors.red,
               totalDivisions:
-              context.watch<NumberDisplayController>().totalNumber,
+                  context.watch<NumberDisplayController>().totalNumber,
               controller: context.watch(),
               child: _progressDisplay(),
             ),
