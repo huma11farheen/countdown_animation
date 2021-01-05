@@ -15,6 +15,7 @@ class CountDownAnimation extends StatefulWidget {
   final Size size;
   final Widget child;
   final double strokeWidth;
+  final EdgeInsetsGeometry padding;
   const CountDownAnimation({
     Key key,
     @required this.totalDivisions,
@@ -25,6 +26,7 @@ class CountDownAnimation extends StatefulWidget {
     @required this.size,
     @required this.child,
     this.strokeWidth = 5.0,
+    this.padding = EdgeInsets.zero,
   })  : assert(size != null),
         super(key: key);
 
@@ -59,16 +61,16 @@ class _CountDownAnimationState extends State<CountDownAnimation>
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     )..addListener(
-          () {
-        setState(() {
-          _percentage = lerpDouble(
-            _percentage,
-            _nextPercentage,
-            countDownAnimationController.value,
-          );
-        });
-      },
-    );
+        () {
+          setState(() {
+            _percentage = lerpDouble(
+              _percentage,
+              _nextPercentage,
+              countDownAnimationController.value,
+            );
+          });
+        },
+      );
   }
 
   Widget _countDownView() {
@@ -104,6 +106,7 @@ class _CountDownAnimationState extends State<CountDownAnimation>
   Widget build(BuildContext context) {
     widget.controller?.addListener(_changeProgress);
     return Container(
+      padding: widget.padding,
       alignment: widget.alignment,
       child: AnimatedBuilder(
         animation: countDownAnimationController,
