@@ -6,7 +6,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class CountDownAnimation extends StatefulWidget {
-  final int totalDivisions;
   final CountController controller;
   final Alignment alignment;
   final Color progressColor;
@@ -17,7 +16,6 @@ class CountDownAnimation extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   const CountDownAnimation({
     Key key,
-    @required this.totalDivisions,
     @required this.controller,
     this.alignment = Alignment.center,
     this.progressColor = Colors.red,
@@ -39,6 +37,7 @@ class _CountDownAnimationState extends State<CountDownAnimation>
   double _percentage;
   double _nextPercentage;
   int _number;
+  static var _totalNumber;
 
   @override
   void dispose() {
@@ -48,7 +47,8 @@ class _CountDownAnimationState extends State<CountDownAnimation>
 
   @override
   void initState() {
-    _number = widget.totalDivisions;
+    _totalNumber = widget.controller.totalNumber;
+    _number = _totalNumber;
     super.initState();
     _percentage = 0.0;
     _nextPercentage = 0.0;
@@ -92,7 +92,7 @@ class _CountDownAnimationState extends State<CountDownAnimation>
       _number = number;
       _percentage = _nextPercentage;
 
-      _nextPercentage += 100 / widget.totalDivisions;
+      _nextPercentage += 100 / _CountDownAnimationState._totalNumber;
       if (_nextPercentage > 100.0) {
         _percentage = 0.0;
         _nextPercentage = 0.0;
@@ -185,11 +185,16 @@ class _CountDownPainter extends CustomPainter {
 typedef CountListener = void Function(int count);
 
 class CountController {
+  final int totalNumber;
   CountListener _listener;
+  int _currentValue;
 
+  CountController({@required this.totalNumber}) : _currentValue = totalNumber;
+  int get currentValue => _currentValue;
   void trigger(int number) {
     if (_listener != null) {
       _listener(number);
+      _currentValue = number;
     }
   }
 

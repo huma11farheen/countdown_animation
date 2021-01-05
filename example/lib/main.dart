@@ -6,19 +6,6 @@ void main() {
   runApp(MyApp());
 }
 
-class NumberDisplayController extends ChangeNotifier {
-  final int totalNumber;
-  int _count;
-
-  NumberDisplayController(this.totalNumber) : _count = totalNumber;
-
-  int get count => _count;
-  void decrement() {
-    _count--;
-    notifyListeners();
-  }
-}
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -29,29 +16,30 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
   const MainPage({Key key}) : super(key: key);
   static Widget wrapped() {
     return MultiProvider(
       providers: [
         Provider(
-          create: (context) => CountController(),
+          create: (context) => CountController(totalNumber: 10),
         ),
-        ChangeNotifierProvider(
-          lazy: false,
-          create: (_) => NumberDisplayController(10),
-        )
       ],
       child: MainPage(),
     );
   }
 
   @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  @override
   Widget build(BuildContext context) {
-    final count = Provider.of<NumberDisplayController>(context);
+    int count = context.watch<CountController>().currentValue;
     Widget _progressDisplay() {
       return Text(
-        context.watch<NumberDisplayController>().count.toString(),
+        context.watch<CountController>().currentValue.toString(),
         style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
       );
     }
@@ -66,8 +54,6 @@ class MainPage extends StatelessWidget {
               size: Size(90, 90),
               backgroundColor: Colors.grey.withOpacity(0.2),
               progressColor: Colors.red,
-              totalDivisions:
-                  context.watch<NumberDisplayController>().totalNumber,
               controller: context.watch(),
               child: _progressDisplay(),
             ),
@@ -78,8 +64,10 @@ class MainPage extends StatelessWidget {
           child: RaisedButton(
             child: Text('Decrement'),
             onPressed: () {
-              count.decrement();
-              context.read<CountController>().trigger(count.count);
+              setState(() {
+                count--;
+                context.read<CountController>().trigger(count);
+              });
             },
           ),
         )
