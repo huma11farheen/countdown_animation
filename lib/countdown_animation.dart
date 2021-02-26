@@ -102,6 +102,9 @@ class _CountDownAnimationState extends State<CountDownAnimation>
 
   void _changeProgress(int number) {
     setState(() {
+      print(number);
+      print(_currentNumber);
+
       if (widget.operation != Operation.IncrementAndDecrement) {
         _nextPercentage += 100 / widget.totalNumber;
       } else {
@@ -118,6 +121,7 @@ class _CountDownAnimationState extends State<CountDownAnimation>
           _nextPercentage = 0.0;
         }
       }
+
       countDownAnimationController.forward(from: 0);
     });
 
@@ -171,9 +175,8 @@ class _CountDownPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final defaultCirclePaint = (currentNumber == initialIndex)
-        ? getPaint(defaultCircleColor)
-        : getPaint(percentageCompletedCircleColor);
+    final defaultCirclePaint = getPaint(defaultCircleColor);
+
     final progressCirclePaint = getPaint(percentageCompletedCircleColor);
     final coverUpCirclePaint = getPaint(Colors.white);
 

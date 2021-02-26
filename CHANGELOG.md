@@ -9,3 +9,5 @@
 ## [0.0.4] - Improve example code.
 
 ## [0.0.5] - Add feature for both way countdown.
+
+## [0.0.5+1] - Fix bugs.
