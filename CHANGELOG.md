@@ -11,3 +11,5 @@
 ## [0.0.5] - Add feature for both way countdown.
 
 ## [0.0.5+1] - Fix bugs.
+
+## [0.0.5+2] - Remove debug code.

@@ -102,9 +102,6 @@ class _CountDownAnimationState extends State<CountDownAnimation>
 
   void _changeProgress(int number) {
     setState(() {
-      print(number);
-      print(_currentNumber);
-
       if (widget.operation != Operation.IncrementAndDecrement) {
         _nextPercentage += 100 / widget.totalNumber;
       } else {
