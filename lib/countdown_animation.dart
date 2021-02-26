@@ -5,25 +5,39 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+enum Operation {
+  Increment,
+  Decrement,
+  IncrementAndDecrement,
+}
+
 class CountDownAnimation extends StatefulWidget {
-  final CountController controller;
+  final CountTriggerController controller;
   final Alignment alignment;
   final Color progressColor;
   final Color backgroundColor;
-  final Size size;
+  final double size;
   final Widget child;
   final double strokeWidth;
   final EdgeInsetsGeometry padding;
+  final Function(int) onChanged;
+  final int totalNumber;
+  final Operation operation;
+  final int initialCounterIndex;
   const CountDownAnimation({
     Key key,
     @required this.controller,
+    @required this.size,
+    @required this.child,
+    @required this.totalNumber,
+    @required this.initialCounterIndex,
+    @required this.operation,
+    this.strokeWidth = 5.0,
+    this.padding = EdgeInsets.zero,
+    this.onChanged,
     this.alignment = Alignment.center,
     this.progressColor = Colors.red,
     this.backgroundColor = Colors.grey,
-    @required this.size,
-    @required this.child,
-    this.strokeWidth = 5.0,
-    this.padding = EdgeInsets.zero,
   })  : assert(size != null),
         super(key: key);
 
@@ -36,8 +50,7 @@ class _CountDownAnimationState extends State<CountDownAnimation>
   AnimationController countDownAnimationController;
   double _percentage;
   double _nextPercentage;
-  int _number;
-  static var _totalNumber;
+  int _currentNumber;
 
   @override
   void dispose() {
@@ -47,10 +60,11 @@ class _CountDownAnimationState extends State<CountDownAnimation>
 
   @override
   void initState() {
-    _totalNumber = widget.controller.totalNumber;
-    _number = _totalNumber;
+    _currentNumber = widget.initialCounterIndex;
     super.initState();
+
     _percentage = 0.0;
+
     _nextPercentage = 0.0;
     _initAnimationController();
   }
@@ -59,17 +73,15 @@ class _CountDownAnimationState extends State<CountDownAnimation>
     countDownAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    )..addListener(
-        () {
-          setState(() {
-            _percentage = lerpDouble(
-              _percentage,
-              _nextPercentage,
-              countDownAnimationController.value,
-            );
-          });
-        },
-      );
+    )..addListener(() {
+        setState(() {
+          _percentage = lerpDouble(
+            _percentage,
+            _nextPercentage,
+            countDownAnimationController.value,
+          );
+        });
+      });
   }
 
   Widget _countDownView() {
@@ -82,23 +94,34 @@ class _CountDownAnimationState extends State<CountDownAnimation>
         defaultCircleColor: widget.backgroundColor,
         percentageCompletedCircleColor: widget.progressColor,
         completedPercentage: _percentage,
-        number: _number,
+        currentNumber: _currentNumber,
+        initialIndex: widget.initialCounterIndex,
       ),
     );
   }
 
   void _changeProgress(int number) {
     setState(() {
-      _number = number;
-      _percentage = _nextPercentage;
+      if (widget.operation != Operation.IncrementAndDecrement) {
+        _nextPercentage += 100 / widget.totalNumber;
+      } else {
+        if (number > _currentNumber) {
+          _nextPercentage += 100 / widget.totalNumber;
+        } else {
+          _nextPercentage -= 100 / widget.totalNumber;
+        }
+        _currentNumber = number;
+        _percentage = _nextPercentage;
 
-      _nextPercentage += 100 / _CountDownAnimationState._totalNumber;
-      if (_nextPercentage > 100.0) {
-        _percentage = 0.0;
-        _nextPercentage = 0.0;
+        if (_nextPercentage > 100.0) {
+          _percentage = 0.0;
+          _nextPercentage = 0.0;
+        }
       }
       countDownAnimationController.forward(from: 0);
     });
+
+    widget.onChanged?.call(number);
   }
 
   @override
@@ -111,7 +134,7 @@ class _CountDownAnimationState extends State<CountDownAnimation>
         animation: countDownAnimationController,
         builder: (context, child) {
           return SizedBox.fromSize(
-            size: widget.size,
+            size: Size(widget.size, widget.size),
             child: _countDownView(),
           );
         },
@@ -126,14 +149,16 @@ class _CountDownPainter extends CustomPainter {
   double completedPercentage;
   final double strokeWidth;
 
-  int number;
+  final int currentNumber;
+  final int initialIndex;
 
   _CountDownPainter({
     @required this.strokeWidth,
     @required this.defaultCircleColor,
     @required this.percentageCompletedCircleColor,
     @required this.completedPercentage,
-    @required this.number,
+    @required this.currentNumber,
+    @required this.initialIndex,
   });
 
   Paint getPaint(Color color) {
@@ -146,7 +171,7 @@ class _CountDownPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final defaultCirclePaint = (number != 0)
+    final defaultCirclePaint = (currentNumber == initialIndex)
         ? getPaint(defaultCircleColor)
         : getPaint(percentageCompletedCircleColor);
     final progressCirclePaint = getPaint(percentageCompletedCircleColor);
@@ -158,6 +183,7 @@ class _CountDownPainter extends CustomPainter {
     canvas.drawCircle(center, radius, defaultCirclePaint);
 
     final arcAngle1 = 2 * pi * (completedPercentage / 100);
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -pi / 2,
@@ -165,8 +191,8 @@ class _CountDownPainter extends CustomPainter {
       false,
       coverUpCirclePaint,
     );
-
     final arcAngle2 = 2 * pi * (completedPercentage / 100);
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -pi / 2,
@@ -178,23 +204,20 @@ class _CountDownPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter painter) {
-    return false;
+    return true;
   }
 }
 
 typedef CountListener = void Function(int count);
 
-class CountController {
-  final int totalNumber;
+class CountTriggerController {
   CountListener _listener;
-  int _currentValue;
 
-  CountController({@required this.totalNumber}) : _currentValue = totalNumber;
-  int get currentValue => _currentValue;
+  CountTriggerController();
+
   void trigger(int number) {
     if (_listener != null) {
       _listener(number);
-      _currentValue = number;
     }
   }
 

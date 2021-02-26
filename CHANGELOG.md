@@ -7,3 +7,5 @@
 ## [0.0.3] - Remove disposable provider dependency.
 
 ## [0.0.4] - Improve example code.
+
+## [0.0.5] - Add feature for both way countdown.

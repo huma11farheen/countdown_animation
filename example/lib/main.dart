@@ -22,7 +22,11 @@ class MainPage extends StatefulWidget {
     return MultiProvider(
       providers: [
         Provider(
-          create: (context) => CountController(totalNumber: 10),
+          create: (context) => CountTriggerController(),
+        ),
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (context) => NumberController(0),
         ),
       ],
       child: MainPage(),
@@ -36,10 +40,10 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    int count = context.watch<CountController>().currentValue;
+    int count = context.watch<NumberController>().value;
     Widget _progressDisplay() {
       return Text(
-        context.watch<CountController>().currentValue.toString(),
+        count.toString(),
         style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
       );
     }
@@ -51,27 +55,40 @@ class _MainPageState extends State<MainPage> {
           child: Align(
             alignment: Alignment.topLeft,
             child: CountDownAnimation(
-              size: Size(90, 90),
+              operation: Operation.Decrement,
+              initialCounterIndex: 0,
+              totalNumber: 4,
+              size: 90,
               backgroundColor: Colors.grey.withOpacity(0.2),
               progressColor: Colors.red,
               controller: context.watch(),
               child: _progressDisplay(),
+              onChanged: (index) {},
             ),
           ),
         ),
         Align(
           alignment: Alignment(0, 0.5),
           child: RaisedButton(
-            child: Text('Decrement'),
+            child: Text('Increment'),
             onPressed: () {
-              setState(() {
-                count--;
-                context.read<CountController>().trigger(count);
-              });
+              final count = context.read<NumberController>().value++;
+              context.read<CountTriggerController>().trigger(count);
             },
           ),
         )
       ]),
     );
+  }
+}
+
+class NumberController extends ValueNotifier<int> {
+  final int initialIndex;
+
+  NumberController(this.initialIndex) : super(initialIndex);
+
+  void setIndex(int index) {
+    value = index;
+    notifyListeners();
   }
 }
