@@ -20,26 +20,25 @@ class CountDownAnimation extends StatefulWidget {
   final Widget child;
   final double strokeWidth;
   final EdgeInsetsGeometry padding;
-  final Function(int) onChanged;
+  final Function(int)? onChanged;
   final int totalNumber;
   final Operation operation;
   final int initialCounterIndex;
   const CountDownAnimation({
-    Key key,
-    @required this.controller,
-    @required this.size,
-    @required this.child,
-    @required this.totalNumber,
-    @required this.initialCounterIndex,
-    @required this.operation,
+    Key? key,
+    required this.controller,
+    required this.size,
+    required this.child,
+    required this.totalNumber,
+    required this.initialCounterIndex,
+    required this.operation,
     this.strokeWidth = 5.0,
     this.padding = EdgeInsets.zero,
     this.onChanged,
     this.alignment = Alignment.center,
     this.progressColor = Colors.red,
     this.backgroundColor = Colors.grey,
-  })  : assert(size != null),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   _CountDownAnimationState createState() => _CountDownAnimationState();
@@ -47,10 +46,10 @@ class CountDownAnimation extends StatefulWidget {
 
 class _CountDownAnimationState extends State<CountDownAnimation>
     with TickerProviderStateMixin {
-  AnimationController countDownAnimationController;
-  double _percentage;
-  double _nextPercentage;
-  int _currentNumber;
+  late AnimationController countDownAnimationController;
+  double? _percentage;
+  double? _nextPercentage;
+  int? _currentNumber;
 
   @override
   void dispose() {
@@ -103,17 +102,17 @@ class _CountDownAnimationState extends State<CountDownAnimation>
   void _changeProgress(int number) {
     setState(() {
       if (widget.operation != Operation.IncrementAndDecrement) {
-        _nextPercentage += 100 / widget.totalNumber;
+        _nextPercentage = _nextPercentage! + 100 / widget.totalNumber;
       } else {
-        if (number > _currentNumber) {
-          _nextPercentage += 100 / widget.totalNumber;
+        if (number > _currentNumber!) {
+          _nextPercentage = _nextPercentage! + 100 / widget.totalNumber;
         } else {
-          _nextPercentage -= 100 / widget.totalNumber;
+          _nextPercentage = _nextPercentage! - 100 / widget.totalNumber;
         }
         _currentNumber = number;
         _percentage = _nextPercentage;
 
-        if (_nextPercentage > 100.0) {
+        if (_nextPercentage! > 100.0) {
           _percentage = 0.0;
           _nextPercentage = 0.0;
         }
@@ -127,7 +126,7 @@ class _CountDownAnimationState extends State<CountDownAnimation>
 
   @override
   Widget build(BuildContext context) {
-    widget.controller?.addListener(_changeProgress);
+    widget.controller.addListener(_changeProgress);
     return Container(
       padding: widget.padding,
       alignment: widget.alignment,
@@ -147,19 +146,19 @@ class _CountDownAnimationState extends State<CountDownAnimation>
 class _CountDownPainter extends CustomPainter {
   Color defaultCircleColor;
   Color percentageCompletedCircleColor;
-  double completedPercentage;
+  double? completedPercentage;
   final double strokeWidth;
 
-  final int currentNumber;
+  final int? currentNumber;
   final int initialIndex;
 
   _CountDownPainter({
-    @required this.strokeWidth,
-    @required this.defaultCircleColor,
-    @required this.percentageCompletedCircleColor,
-    @required this.completedPercentage,
-    @required this.currentNumber,
-    @required this.initialIndex,
+    required this.strokeWidth,
+    required this.defaultCircleColor,
+    required this.percentageCompletedCircleColor,
+    required this.completedPercentage,
+    required this.currentNumber,
+    required this.initialIndex,
   });
 
   Paint getPaint(Color color) {
@@ -182,7 +181,7 @@ class _CountDownPainter extends CustomPainter {
 
     canvas.drawCircle(center, radius, defaultCirclePaint);
 
-    final arcAngle1 = 2 * pi * (completedPercentage / 100);
+    final arcAngle1 = 2 * pi * (completedPercentage! / 100);
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -191,7 +190,7 @@ class _CountDownPainter extends CustomPainter {
       false,
       coverUpCirclePaint,
     );
-    final arcAngle2 = 2 * pi * (completedPercentage / 100);
+    final arcAngle2 = 2 * pi * (completedPercentage! / 100);
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -211,13 +210,13 @@ class _CountDownPainter extends CustomPainter {
 typedef CountListener = void Function(int count);
 
 class CountTriggerController {
-  CountListener _listener;
+  CountListener? _listener;
 
   CountTriggerController();
 
   void trigger(int number) {
     if (_listener != null) {
-      _listener(number);
+      _listener!(number);
     }
   }
 

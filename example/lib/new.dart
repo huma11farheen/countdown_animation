@@ -11,13 +11,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: ' Countdown Animation Demo',
-      home: MainPage.wrapped(),
+      home: New.wrapped(),
     );
   }
 }
 
-class MainPage extends StatefulWidget {
-  const MainPage({Key key}) : super(key: key);
+class New extends StatefulWidget {
+  const New({Key key}) : super(key: key);
   static Widget wrapped() {
     return MultiProvider(
       providers: [
@@ -29,15 +29,24 @@ class MainPage extends StatefulWidget {
           create: (context) => NumberController(0),
         ),
       ],
-      child: MainPage(),
+      child: New(),
     );
   }
 
   @override
-  _MainPageState createState() => _MainPageState();
+  _NewState createState() => _NewState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _NewState extends State<New> with TickerProviderStateMixin {
+  PageController _controller;
+  @override
+  void initState() {
+    final initialPage = context.read<NumberController>().value;
+    _controller =
+        PageController(initialPage: initialPage, viewportFraction: 0.8);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     int count = context.watch<NumberController>().value;
@@ -50,33 +59,39 @@ class _MainPageState extends State<MainPage> {
 
     return Scaffold(
       appBar: AppBar(),
-      body: Stack(children: [
+      body: Column(children: [
+        Expanded(
+          child: PageView(
+            controller: _controller,
+            children: [
+              Con(),
+              Con(),
+              Con(),
+              Con(),
+              Con(),
+              Con(),
+            ],
+            onPageChanged: (number) {
+              context.read<CountTriggerController>().trigger(number);
+            },
+          ),
+        ),
         Center(
           child: Align(
             alignment: Alignment.topLeft,
             child: CountDownAnimation(
-              operation: Operation.Decrement,
+              operation: Operation.IncrementAndDecrement,
               initialCounterIndex: 0,
-              totalNumber: 4,
+              totalNumber: 5,
               size: 90,
               backgroundColor: Colors.grey.withOpacity(0.2),
               progressColor: Colors.red,
               controller: context.watch(),
               child: _progressDisplay(),
-              onChanged: (index) {},
+              onChanged: context.watch<NumberController>().setIndex,
             ),
           ),
         ),
-        Align(
-          alignment: Alignment(0, 0.5),
-          child: ElevatedButton(
-            child: Text('Increment'),
-            onPressed: () {
-              final count = context.read<NumberController>().value++;
-              context.read<CountTriggerController>().trigger(count);
-            },
-          ),
-        )
       ]),
     );
   }
@@ -90,5 +105,17 @@ class NumberController extends ValueNotifier<int> {
   void setIndex(int index) {
     value = index;
     notifyListeners();
+  }
+}
+
+class Con extends StatelessWidget {
+  const Con({Key key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.all(8),
+        child: Container(
+          color: Colors.red,
+        ));
   }
 }
