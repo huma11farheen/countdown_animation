@@ -46,10 +46,13 @@ class CountDownAnimation extends StatefulWidget {
 
 class _CountDownAnimationState extends State<CountDownAnimation>
     with TickerProviderStateMixin {
-  late AnimationController countDownAnimationController;
-  double? _percentage;
-  double? _nextPercentage;
-  int? _currentNumber;
+  late AnimationController countDownAnimationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  );
+  late var _percentage;
+  late var _nextPercentage;
+  late var _currentNumber;
 
   @override
   void dispose() {
